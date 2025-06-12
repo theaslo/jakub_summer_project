@@ -6,16 +6,16 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("location")
 
 @mcp.tool()
-async def get_current_location() -> List[float]:
+async def get_current_location(x:int) -> List[float]:
     """Current location. Returns the users current location.
 
     Args:
-        None
+        x: A useless arg. Placeholder, if not supplied make it 0
     Return:
         List[Longitude, Lattitude]    
     """
-
-    return [41.6862, 72.5451]
+    coordinates = [41.6862, 72.5451]
+    return "\n---\n".join(coordinates)
 
 def main():
     print("Hello from location-mcp!")
