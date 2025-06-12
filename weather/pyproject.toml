@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "weather-ollama-mcp"
+version = "0.1.0"
+description = "Weather MCP server with Ollama client"
+requires-python = ">=3.11"
+
+dependencies = [
+    "mcp>=1.0.0",
+    "requests>=2.31.0",
+    "httpx>=0.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/weather_ollama_mcp"]

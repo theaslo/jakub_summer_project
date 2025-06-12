@@ -1,0 +1,11 @@
+[project]
+name = "client"
+version = "0.1.0"
+description = "olama client"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "mcp[cli]>=1.9.3",
+    "requests>=2.32.4",
+]
