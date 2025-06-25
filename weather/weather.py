@@ -53,6 +53,7 @@ async def get_alerts(state: str) -> str:
     alerts = [format_alert(feature) for feature in data["features"]]
     return "\n---\n".join(alerts)
 
+    
 @mcp.tool()
 async def get_forecast(latitude: float, longitude: float) -> str:
     """Get weather forecast for a location.
@@ -89,6 +90,47 @@ Forecast: {period['detailedForecast']}
 
     return "\n---\n".join(forecasts)
 
+# @mcp.tool()
+# async def get_forecast_from_mcp_location(location_data: str) -> str:
+#     """Get weather forecast using RAW JSON from location server.
+
+#     IMPORTANT: Pass the EXACT JSON string returned by get_current_location.
+#     Do not reformat, interpret, or modify the JSON data.
+    
+#     Args:
+#         location_data: The raw JSON string from get_current_location (e.g. '{"latitude": 41.6862, "longitude": -72.5451}')
+    
+#     Returns:
+#         str: Detailed weather forecast
+#     """
+#     import json
+    
+#     try:
+#         # Parse the JSON from location server
+#         coords = json.loads(location_data)
+#         latitude = coords["latitude"]
+#         longitude = coords["longitude"]
+        
+#         # Use your existing get_forecast function
+#         return await get_forecast(latitude, longitude)
+        
+#     except (json.JSONDecodeError, KeyError) as e:
+#         return f"Error parsing location data: {str(e)}"
+@mcp.tool()
+async def get_forecast_from_coordinates(latitude: float, longitude: float) -> str:
+    """Get weather forecast from individual latitude and longitude values.
+    
+    This tool accepts separate latitude and longitude parameters.
+    
+    Args:
+        latitude: Latitude coordinate as a number
+        longitude: Longitude coordinate as a number
+    
+    Returns:
+        str: Weather forecast for the coordinates
+    """
+    # Use your existing forecast logic
+    return await get_forecast(latitude, longitude)    
 if __name__ == "__main__":
     # Initialize and run the server
     mcp.run(transport='stdio')
