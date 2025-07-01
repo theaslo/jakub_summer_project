@@ -56,7 +56,7 @@ async def get_alerts(state: str) -> str:
     
 @mcp.tool()
 async def get_forecast(latitude: float, longitude: float) -> str:
-    """Get weather forecast for a location.
+    """Get weather forecast for a given location.
 
     Args:
         latitude: Latitude of the location
@@ -116,21 +116,21 @@ Forecast: {period['detailedForecast']}
         
 #     except (json.JSONDecodeError, KeyError) as e:
 #         return f"Error parsing location data: {str(e)}"
-@mcp.tool()
-async def get_forecast_from_coordinates(latitude: float, longitude: float) -> str:
-    """Get weather forecast from individual latitude and longitude values.
+# @mcp.tool()
+# async def get_forecast_from_coordinates(latitude: float, longitude: float) -> str:
+#     """Get weather forecast from individual latitude and longitude values.
     
-    This tool accepts separate latitude and longitude parameters.
+#     This tool accepts separate latitude and longitude parameters.
     
-    Args:
-        latitude: Latitude coordinate as a number
-        longitude: Longitude coordinate as a number
+#     Args:
+#         latitude: Latitude coordinate as a number
+#         longitude: Longitude coordinate as a number
     
-    Returns:
-        str: Weather forecast for the coordinates
-    """
-    # Use your existing forecast logic
-    return await get_forecast(latitude, longitude)    
+#     Returns:
+#         str: Weather forecast for the coordinates
+#     """
+#     # Use your existing forecast logic
+#     return await get_forecast(latitude, longitude)    
 if __name__ == "__main__":
     # Initialize and run the server
     mcp.run(transport='stdio')

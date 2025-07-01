@@ -4,6 +4,48 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import SystemMessage
 
+async def interactive_chat(agent, system_message):
+    """Interactive chat loop for user queries"""
+    print("\n" + "="*60)
+    print("🤖 Multi-MCP Weather Assistant ready!")
+    print("Available commands:")
+    print("- Ask about weather: 'What's the weather in [city]?'")
+    print("- Ask about current location: 'What's my current location?'")
+    print("- Ask for forecast: 'What's the forecast for my current location?'")
+    print("Type 'quit' to exit.")
+    print("="*60 + "\n")
+    
+    while True:
+        try:
+            # Get user input
+            user_input = input("You: ").strip()
+            
+            if user_input.lower() in ['quit', 'exit', 'q', 'bye']:
+                print("👋 Goodbye!")
+                break
+                
+            if not user_input:
+                continue
+                
+            print("🤖 Thinking...")
+            
+            # Call agent with user input and system instructions
+            response = await agent.ainvoke({
+                "messages": [
+                    SystemMessage(content=system_message),
+                    ("human", user_input)
+                ]
+            }, config={"recursion_limit": 8})
+            
+            print(f"\nAssistant: {response['messages'][-1].content}\n")
+            print("-" * 50)
+            
+        except KeyboardInterrupt:
+            print("\n👋 Goodbye!")
+            break
+        except Exception as e:
+            print(f"❌ Error: {e}\n")
+
 async def main():
 
     client = MultiServerMCPClient(
@@ -32,8 +74,13 @@ async def main():
         }
     )
     tools = await client.get_tools()
-    print(f"tools --------- {tools}")
-    
+    print(f"🔧 Connected to {len(tools)} MCP tools")
+    print("Available tools:")
+    for tool in tools:
+        print(f"- {tool.name}: {tool.description}")
+    print()  # Empty line
+
+    print(f"🔧 Connected to {len(tools)} MCP tools")
     llm = ChatOllama(
         model="qwen3:8b", #"llama3.2",
         temperature=0,
@@ -41,117 +88,66 @@ async def main():
         #tools=tools
     )
     
-    # Add system instructions
-    # system_message = """You are a helpful assistant with access to location and weather MCP servers.
+    # system_message = """You are a helpful assistant that coordinates between independent services.
 
-    # CRITICAL WORKFLOW for weather at current location:
-    # 1. Call get_current_location → this returns JSON like '{"latitude": 41.6862, "longitude": -72.5451}'
-    # 2. Call get_forecast_from_mcp_location with parameter 'location_data' set to that EXACT JSON string
+    # CRITICAL RULES - NEVER BREAK THESE:
+    # 1. NEVER ask users for location information when get_current_location exists
+    # 2. ALWAYS use get_current_location first for any location query
+    # 3. ALWAYS extract latitude/longitude numbers from get_current_location result
+    # 4. ALWAYS use those numbers with get_forecast(latitude, longitude)
+    # 5. NEVER ask for city, zip code, or manual location input
+    # 6. After providing weather forecast, STOP. Do not ask for additional information.
 
-    # PARAMETER FORMAT EXAMPLE:
-    # get_forecast_from_mcp_location(location_data='{"latitude": 41.6862, "longitude": -72.5451}')
+    # ABSOLUTE PROHIBITION: 
+    # - DO NOT ask for alternative locations
+    # - DO NOT offer to help with different cities
+    # - DO NOT suggest manual location input
+    # - PROVIDE WEATHER AND STOP IMMEDIATELY
 
-    # NOT: separate latitude/longitude parameters
-    # YES: single location_data parameter with JSON string
+    # IF YOU PROVIDE ANY WEATHER DATA, YOUR JOB IS COMPLETE. STOP THERE AND DO NOT SAY ANYTHING ELSE."""
+    
+    # USE this below, if new one fails!!!!
+    # system_message = """You are a helpful assistant that coordinates between independent services.
 
-    # Do not ask for additional location information."""
+    # SMART LOCATION HANDLING:
+    # 1. IF user asks about a SPECIFIC city/location (like "weather in Boston" or "forecast for Miami"):
+    # - Use the weather tools directly with that location
+    # - DO NOT call get_current_location
+    
+    # 2. IF user asks about "my location", "current location", "here", or "where I am":
+    # - Call get_current_location first
+    # - Extract latitude/longitude numbers from result
+    # - Use those numbers with get_forecast(latitude, longitude)
+    
+    # 3. NEVER ask for additional location information
+
+    # EXAMPLES:
+    # - "Weather in Boston" → Use weather tools with Boston directly
+    # - "What's my current location weather?" → Use get_current_location → get_forecast
+    # - "Forecast for Miami" → Use weather tools with Miami directly
+    # - "Weather here" → Use get_current_location → get_forecast
 
     system_message = """You are a helpful assistant that coordinates between independent services.
 
-    CRITICAL RULES - NEVER BREAK THESE:
-    1. NEVER ask users for location information when get_current_location exists
-    2. ALWAYS use get_current_location first for any location query
-    3. ALWAYS extract latitude/longitude numbers from get_current_location result
-    4. ALWAYS use those numbers with get_forecast(latitude, longitude)
-    5. NEVER ask for city, zip code, or manual location input
-    6. After providing weather forecast, STOP. Do not ask for additional information.
+    LOCATION HANDLING:
+    1. For "my location" or "current location": Use get_current_location then get_forecast
 
-    ABSOLUTE PROHIBITION: 
-    - DO NOT ask for alternative locations
-    - DO NOT offer to help with different cities
-    - DO NOT suggest manual location input
-    - PROVIDE WEATHER AND STOP IMMEDIATELY
+    2. For SPECIFIC CITIES: Use your built-in knowledge of world geography to determine the latitude and longitude coordinates, then call get_forecast(latitude, longitude)
 
-    IF YOU PROVIDE ANY WEATHER DATA, YOUR JOB IS COMPLETE. STOP THERE AND DO NOT SAY ANYTHING ELSE."""
+    WORKFLOW EXAMPLES:
+    - User: "Weather in Boston" → You: Look up Boston coordinates from your knowledge → Call get_forecast(lat, lng)
+    - User: "Weather in Paris" → You: Look up Paris coordinates from your knowledge → Call get_forecast(lat, lng)  
+    - User: "My location weather" → You: Call get_current_location → Extract coordinates → Call get_forecast
 
+    Use your existing geographical knowledge to find coordinates for any city worldwide.
+    NEVER ask for additional location information."""
+
+    # After providing weather data, STOP. Do not ask for alternatives or additional info."""
     agent = create_react_agent(llm, tools)
 
-    #agent = create_react_agent("anthropic:claude-3-7-sonnet-latest", tools)
-    
-    print("=== Testing Simple Tool Usage ===")
-    try:
-        simple_tool_test = await agent.ainvoke({
-            "messages": [
-                SystemMessage(content=system_message),
-                ("human", "Use the get_current_location tool now")
-            ]
-        }, config={"recursion_limit": 4})
-        
-        print("Simple tool test result:")
-        #print(alltogether["messages"][-1].content)
-        print(simple_tool_test["messages"][-1].content)
-        print("--------------------------------------------------------------------------------")
-        
-    except Exception as e:
-        print(f"Simple tool test failed: {e}")
-        print("--------------------------------------------------------------------------------")
-
-    print("=== Debug Location Server Output ===")
-    try:
-        location_debug = await agent.ainvoke({
-            "messages": "Call get_current_location and show me exactly what it returns"
-        }, config={"recursion_limit": 8})
-        
-        print("Location debug result:")
-        print(location_debug["messages"][-1].content)
-        print("--------------------------------------------------------------------------------")
-        
-    except Exception as e:
-        print(f"Location debug failed: {e}")
-        print("--------------------------------------------------------------------------------")
-    # Other tests
-    try:
-        weather_response = await agent.ainvoke({"messages": "What's the weather in Glastonbury Connecticut?"})
-        print("--------------------------------------------------------------------------------")
-        print(weather_response["messages"][-1].content)
-        print("--------------------------------------------------------------------------------")
-    except Exception as e:
-        print(f"Weather test failed: {e}")
-        print("--------------------------------------------------------------------------------")
-
-    try:
-        location_response = await agent.ainvoke({"messages": "whats my current location?"})
-        print(location_response["messages"][-1].content)
-        print("--------------------------------------------------------------------------------")
-    except Exception as e:
-        print(f"Location test failed: {e}")
-        print("--------------------------------------------------------------------------------")
-
-    # try:
-    #     alltogether = await agent.ainvoke({
-    #         "messages": [
-    #             SystemMessage(content="Use get_current_location first, then get_forecast_from_mcp_location with that data. Do not ask for additional location information."),
-    #             ("human", "What's the forecast for my current location?")
-    #         ]
-    #     }, config={"recursion_limit": 8})
-    try:
-        alltogether = await agent.ainvoke({
-            "messages": [
-                SystemMessage(content="""
-                Step 1: Call get_current_location  
-                Step 2: Extract latitude and longitude numbers from the result
-                Step 3: Call get_forecast(latitude=number, longitude=number) with those numbers
-                Do not ask for additional location information.
-                """),
-                ("human", "What's the forecast for my current location?")
-            ]
-        }, config={"recursion_limit": 8})
-        
-        print(alltogether["messages"][-1].content)
-        print("--------------------------------------------------------------------------------")
-    except Exception as e:
-        print(f"Combined test failed: {e}")
-        print("--------------------------------------------------------------------------------")
+    # Skip all tests and go directly to interactive mode
+    print("🚀 Starting Multi-MCP Weather Assistant...")
+    await interactive_chat(agent, system_message)
 
 if __name__ == "__main__":
     asyncio.run(main())

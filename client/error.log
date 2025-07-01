@@ -190,3 +190,61 @@ Traceback (most recent call last):
   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/requests/adapters.py", line 700, in send
     raise ConnectionError(e, request=request)
 requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=11434): Max retries exceeded with url: /api/generate (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x105995590>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-06-27 09:57:37,206 - ERROR - Error during chat loop processing for input 'weather in CT': Expecting value: line 1 column 1 (char 0)
+Traceback (most recent call last):
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/ollama_mcp_client.py", line 329, in chat_loop
+    response = await self.process_weather_request(user_input)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/ollama_mcp_client.py", line 271, in process_weather_request
+    args = json.loads(line.split("ARGS:")[1].strip())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asli.tandogan_kunkel/.pyenv/versions/3.11.4/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asli.tandogan_kunkel/.pyenv/versions/3.11.4/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asli.tandogan_kunkel/.pyenv/versions/3.11.4/lib/python3.11/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+2025-06-27 10:09:19,787 - ERROR - unhandled exception during asyncio.run() shutdown
+task: <Task finished name='Task-6' coro=<<async_generator_athrow without __name__>()> exception=RuntimeError('Attempted to exit cancel scope in a different task than it was entered in')>
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/mcp/client/stdio/__init__.py", line 185, in stdio_client
+    |     yield read_stream, write_stream
+    | asyncio.exceptions.CancelledError
+    | 
+    | During handling of the above exception, another exception occurred:
+    | 
+    | Traceback (most recent call last):
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/mcp/client/stdio/__init__.py", line 178, in stdio_client
+    |     async with (
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1066, in aclose
+    |     await self._stdin.aclose()
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1053, in aclose
+    |     await AsyncIOBackend.checkpoint()
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 2326, in checkpoint
+    |     await sleep(0)
+    |   File "/Users/asli.tandogan_kunkel/.pyenv/versions/3.11.4/lib/python3.11/asyncio/tasks.py", line 630, in sleep
+    |     await __sleep0()
+    |   File "/Users/asli.tandogan_kunkel/.pyenv/versions/3.11.4/lib/python3.11/asyncio/tasks.py", line 624, in __sleep0
+    |     yield
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/mcp/client/stdio/__init__.py", line 178, in stdio_client
+    async with (
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 778, in __aexit__
+    if self.cancel_scope.__exit__(type(exc), exc, exc.__traceback__):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 457, in __exit__
+    raise RuntimeError(
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
