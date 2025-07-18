@@ -1,23 +1,12 @@
 [project]
-name = "jakub-summer-project"
+name = "langchain-client"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
-    "httpx>=0.28.1",
     "langchain-mcp-adapters>=0.1.7",
     "langchain-ollama>=0.3.3",
     "langchain[anthropic,ollama,openai]>=0.3.25",
     "langgraph>=0.4.8",
-    "mcp[cli]>=1.9.3",
-    "requests>=2.32.4",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-]
-
-[tool.uv.workspace]
-members = ["langchain_client"]
