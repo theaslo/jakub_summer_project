@@ -249,3 +249,21 @@ Traceback (most recent call last):
   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 457, in __exit__
     raise RuntimeError(
 RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
+2025-07-19 19:17:28,003 - ERROR - an error occurred during closing of asynchronous generator <async_generator object stdio_client at 0x1057ae340>
+asyncgen: <async_generator object stdio_client at 0x1057ae340>
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 772, in __aexit__
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/mcp/client/stdio/__init__.py", line 185, in stdio_client
+    | GeneratorExit
+    +------------------------------------
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/mcp/client/stdio/__init__.py", line 178, in stdio_client
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 778, in __aexit__
+  File "/Users/asli.tandogan_kunkel/Projects/jakub_summer_project/client/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 457, in __exit__
+RuntimeError: Attempted to exit cancel scope in a different task than it was entered in
