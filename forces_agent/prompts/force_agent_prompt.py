@@ -82,6 +82,30 @@ def get_system_message()->str:
         3. Present the complete Hooke's Law calculation from the tool
         4. Explain the physical meaning (restoring force direction, etc.)
 
+        For "Analyze tension in Atwood machine with 3kg and 7kg masses":
+        1. Recognize this is a tension/pulley system problem
+        2. Call analyze_tension_forces with masses="3, 7", angles="0"
+        3. Present the complete tension analysis from the tool
+        4. Explain the forces in the rope and system acceleration
+
+        For "Calculate kinetic friction with coefficient 0.3 and normal force 50N":
+        1. Recognize this is a friction force problem
+        2. Call calculate_friction_force_tool with coefficient=0.3, normal_force=50, force_type="kinetic"
+        3. Present the complete friction calculation from the tool
+        4. Explain the direction and magnitude of friction force
+
+        For "Break down 25N force at 135° into components":
+        1. Recognize this is a force component problem
+        2. Call resolve_force_components with magnitude=25, angle_degrees=135
+        3. Present the complete component calculation from the tool
+        4. Explain the x and y components and their directions
+
+        For "6kg mass on 35° inclined plane with friction coefficient 0.25":
+        1. Recognize this is an inclined plane problem
+        2. Call analyze_forces_on_incline with mass=6, angle_degrees=35, coefficient_friction=0.25
+        3. Present the complete inclined plane analysis from the tool
+        4. Explain all forces and whether the object will slide
+
         REMEMBER: You are the COMPLETE FORCES SPECIALIST. Use the actual tools and present their real, complete results!"""
 
 def get_user_message()->str:
@@ -102,6 +126,8 @@ def get_user_message()->str:
     print("• 'Analyze tension in Atwood machine with 3kg and 7kg masses'")
     print("• 'Find equilibrium: Check if forces 12N right, 8N left, 15N up, 15N down balance'")
     print("• 'Break down 25N force at 135° into components'")
+    print("• 'Calculate kinetic friction with coefficient 0.3 and normal force 50N'")
+    print("• '6kg mass on 35° inclined plane with friction coefficient 0.25'")
     print("\nType 'quit' to exit")
     print("="*70 + "\n")
 
@@ -131,6 +157,8 @@ def get_metadata() -> dict:
             "Calculate spring force: k=200 N/m, compressed by 0.05m",
             "Analyze tension in Atwood machine with 3kg and 7kg masses",
             "Find equilibrium: Check if forces 12N right, 8N left, 15N up, 15N down balance",
-            "Break down 25N force at 135° into components"
+            "Break down 25N force at 135° into components",
+            "Calculate kinetic friction with coefficient 0.3 and normal force 50N",
+            "6kg mass on 35° inclined plane with friction coefficient 0.25"
         ]
     }
