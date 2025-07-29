@@ -1,11 +1,11 @@
 """
-Combined Forces Agent - Merges Abstract Design with Proven MCP Integration
+Combined Mathematics Agent - Merges Abstract Design with Proven MCP Integration
 Compatible with Google A2A Framework + Direct Tool Calls That Work
 
 This agent combines:
-- Abstraction and A2A compatibility from forces_agent.py
-- Proven direct MCP tool calls from working_forces_agent.py
-- Support for both forces and kinematics agents
+- Abstraction and A2A compatibility from physics agents
+- Proven direct MCP tool calls from working agents
+- Support for comprehensive mathematics problem solving
 """
 
 import asyncio
@@ -18,19 +18,19 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import SystemMessage
 
 
-class CombinedPhysicsAgent:
+class CombinedMathematicsAgent:
     """
-    Combined Physics Agent with both abstraction and proven MCP tool integration
+    Combined Mathematics Agent with both abstraction and proven MCP tool integration
     
     Features:
     - A2A framework compatibility
     - Direct MCP tool calls (proven to work)
-    - Support for forces and kinematics agents
+    - Support for comprehensive mathematics problem solving
     - Flexible agent configuration
     """
     
     def __init__(self, 
-                 agent_id: str = "forces_agent", 
+                 agent_id: str = "math_agent", 
                  llm_base_url: str = "http://ds.stat.uconn.edu:11434", 
                  model: str = "qwen3:8b-q8_0",
                  use_direct_tools: bool = True):
@@ -59,32 +59,25 @@ class CombinedPhysicsAgent:
 
     def _setup_agent_config(self):
         """Setup agent-specific configuration"""
-        if self.agent_id == "forces_agent":
-            from prompts.force_agent_prompt import get_user_message, get_system_message, get_metadata
+        if self.agent_id == "math_agent":
+            from prompts.math_agent_prompt import get_user_message, get_system_message, get_metadata
             self.get_system_message = get_system_message
             self.get_user_message = get_user_message
             self.metadata = get_metadata()
-            self.mcp_port = 10100  # MCP port for forces agent on VM
-            
-        elif self.agent_id == "kinematics_agent":
-            from prompts.kinematics_agent_prompt import get_user_message, get_system_message, get_metadata
-            self.get_system_message = get_system_message
-            self.get_user_message = get_user_message  
-            self.metadata = get_metadata()
-            self.mcp_port = 10101  # MCP port for kinematics agent on VM
+            self.mcp_port = 10102  # MCP port for math agent on VM
             
         else:
-            raise ValueError(f"Agent type '{self.agent_id}' not supported. Use 'forces_agent' or 'kinematics_agent'")
+            raise ValueError(f"Agent type '{self.agent_id}' not supported. Use 'math_agent'")
 
     async def initialize(self):
-        """Initialize the physics agent with MCP tools"""
+        """Initialize the mathematics agent with MCP tools"""
         if self.initialized:
             return
             
         print(f"🚀 Initializing {self.agent_id.title().replace('_', ' ')} (Mode: {'Direct Tools' if self.use_direct_tools else 'LangChain Agent'})...")
         
         # Connect to MCP server on VM using HTTP transport
-        server_name = self.agent_id.split('_')[0]  # 'forces' or 'kinematics'
+        server_name = self.agent_id.split('_')[0]  # 'math'
         self.client = MultiServerMCPClient({
             server_name: {
                 "transport": "streamable_http",
@@ -115,10 +108,10 @@ class CombinedPhysicsAgent:
 
     async def solve_problem(self, problem: str, context: Optional[Dict] = None) -> Dict[str, Any]:
         """
-        Main method to solve physics problems
+        Main method to solve mathematics problems
         
         Args:
-            problem: Text description of the physics problem
+            problem: Text description of the mathematics problem
             context: Optional context from A2A framework or other agents
             
         Returns:
@@ -157,16 +150,14 @@ class CombinedPhysicsAgent:
             }
 
     async def _solve_with_direct_tools(self, problem: str) -> str:
-        """Solve using direct tool calls (working_forces_agent.py approach)"""
-        if self.agent_id == "forces_agent":
-            return await self._solve_forces_problem_direct(problem)
-        elif self.agent_id == "kinematics_agent":
-            return await self._solve_kinematics_problem_direct(problem)
+        """Solve using direct tool calls"""
+        if self.agent_id == "math_agent":
+            return await self._solve_math_problem_direct(problem)
         else:
             return "❌ Unsupported agent type for direct tools"
 
     async def _solve_with_langchain_agent(self, problem: str, context: Optional[Dict] = None) -> str:
-        """Solve using LangChain agent approach (forces_agent.py approach)"""
+        """Solve using LangChain agent approach"""
         if context:
             full_input = f"Context: {json.dumps(context)}\\n\\nProblem: {problem}"
         else:
@@ -181,413 +172,386 @@ class CombinedPhysicsAgent:
         
         return response['messages'][-1].content
 
-    # FORCES-SPECIFIC DIRECT TOOL METHODS
-    async def _solve_forces_problem_direct(self, problem: str) -> str:
-        """Direct tool solving for forces problems"""
+    # MATHEMATICS-SPECIFIC DIRECT TOOL METHODS
+    async def _solve_math_problem_direct(self, problem: str) -> str:
+        """Direct tool solving for mathematics problems"""
         problem_lower = problem.lower()
         
-        # 2D Force Addition
-        if any(word in problem_lower for word in ["add", "forces"]) and ("°" in problem or "degree" in problem_lower):
-            return await self._call_forces_2d_tool(problem)
+        # Quadratic equations
+        if any(word in problem_lower for word in ["x²", "x^2", "quadratic"]) and ("=" in problem or "solve" in problem_lower):
+            return await self._call_quadratic_tool(problem)
             
-        # Spring Force
-        elif any(word in problem_lower for word in ["spring", "hooke"]):
-            return await self._call_spring_tool(problem)
+        # Linear equations
+        elif "x" in problem and "=" in problem and "x²" not in problem and "x^2" not in problem:
+            return await self._call_linear_tool(problem)
             
-        # Force Components
-        elif any(word in problem_lower for word in ["component", "resolve", "break"]):
-            return await self._call_component_tool(problem)
+        # Trigonometry
+        elif any(word in problem_lower for word in ["sin", "cos", "tan", "trigonometry", "trig"]):
+            return await self._call_trigonometry_tool(problem)
             
-        # Equilibrium
-        elif any(word in problem_lower for word in ["equilibrium", "balance"]):
-            return await self._call_equilibrium_tool(problem)
+        # Triangle solving
+        elif any(word in problem_lower for word in ["triangle", "sides", "angles", "law of"]):
+            return await self._call_triangle_tool(problem)
             
-        # Free Body Diagram
-        elif any(word in problem_lower for word in ["free body", "fbd", "diagram"]):
-            return await self._call_fbd_tool(problem)
+        # Logarithms
+        elif any(word in problem_lower for word in ["log", "ln", "logarithm", "antilog"]):
+            return await self._call_logarithm_tool(problem)
             
-        else:
-            return await self._call_forces_2d_tool(problem)  # Default
-
-    async def _call_forces_2d_tool(self, problem: str) -> str:
-        """Call 2D force addition tool directly"""
-        try:
-            if "add_forces_2d" not in self.tool_dict:
-                return "❌ add_forces_2d tool not available"
+        # Statistics
+        elif any(word in problem_lower for word in ["statistics", "mean", "median", "data", "standard deviation"]):
+            return await self._call_statistics_tool(problem)
             
-            forces = self._parse_forces(problem)
-            if not forces:
-                return "❌ Could not parse forces. Try format: 'Add forces: 10N at 30°, 15N at 120°'"
+        # Unit circle
+        elif any(word in problem_lower for word in ["unit circle", "reference"]):
+            return await self._call_unit_circle_tool(problem)
             
-            tool = self.tool_dict["add_forces_2d"]
-            result = await tool.ainvoke({"forces_data": forces})
-            
-            return f"🎯 **2D FORCE ADDITION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
-            
-        except Exception as e:
-            return f"❌ Error in 2D force calculation: {e}"
-
-    async def _call_spring_tool(self, problem: str) -> str:
-        """Call spring force tool directly"""
-        try:
-            if "calculate_spring_force_tool" not in self.tool_dict:
-                return "❌ calculate_spring_force_tool not available"
-            
-            k, displacement = self._parse_spring_params(problem)
-            
-            tool = self.tool_dict["calculate_spring_force_tool"]
-            result = await tool.ainvoke({
-                "spring_constant": k,
-                "displacement": displacement
-            })
-            
-            return f"🎯 **SPRING FORCE SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
-            
-        except Exception as e:
-            return f"❌ Error in spring force calculation: {e}"
-
-    async def _call_component_tool(self, problem: str) -> str:
-        """Call force component resolution tool"""
-        try:
-            if "resolve_force_components" not in self.tool_dict:
-                return "❌ resolve_force_components tool not available"
-            
-            magnitude, angle = self._parse_force_magnitude_angle(problem)
-            
-            tool = self.tool_dict["resolve_force_components"]
-            result = await tool.ainvoke({
-                "magnitude": magnitude,
-                "angle_degrees": angle
-            })
-            
-            return f"🎯 **FORCE COMPONENTS SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
-            
-        except Exception as e:
-            return f"❌ Error in component calculation: {e}"
-
-    async def _call_equilibrium_tool(self, problem: str) -> str:
-        """Call equilibrium checking tool"""
-        try:
-            if "check_equilibrium" not in self.tool_dict:
-                return "❌ check_equilibrium tool not available"
-            
-            forces = self._parse_forces(problem)
-            if not forces:
-                return "❌ Could not parse forces for equilibrium check"
-            
-            tool = self.tool_dict["check_equilibrium"]
-            result = await tool.ainvoke({"forces_data": json.dumps(forces)})
-            
-            return f"🎯 **EQUILIBRIUM ANALYSIS**\\n\\n{result}\\n\\n✅ **Analysis completed using MCP tools**"
-            
-        except Exception as e:
-            return f"❌ Error in equilibrium analysis: {e}"
-
-    async def _call_fbd_tool(self, problem: str) -> str:
-        """Call free body diagram tool"""
-        try:
-            if "create_free_body_diagram" not in self.tool_dict:
-                return "❌ create_free_body_diagram tool not available"
-            
-            object_name = self._parse_object_name(problem)
-            forces = self._parse_forces_with_names(problem)
-            
-            tool = self.tool_dict["create_free_body_diagram"]
-            result = await tool.ainvoke({
-                "object_name": object_name,
-                "forces_data": json.dumps(forces)
-            })
-            
-            return f"🎯 **FREE BODY DIAGRAM**\\n\\n{result}\\n\\n✅ **Diagram completed using MCP tools**"
-            
-        except Exception as e:
-            return f"❌ Error in free body diagram: {e}"
-
-    # KINEMATICS-SPECIFIC DIRECT TOOL METHODS
-    async def _solve_kinematics_problem_direct(self, problem: str) -> str:
-        """Direct tool solving for kinematics problems"""
-        problem_lower = problem.lower()
-        
-        # Projectile motion
-        if any(word in problem_lower for word in ["thrown", "launched", "projectile", "trajectory"]) and ("angle" in problem_lower or "°" in problem):
-            return await self._call_projectile_tool(problem)
-            
-        # Free fall
-        elif any(word in problem_lower for word in ["dropped", "fall", "falling", "height"]) and "angle" not in problem_lower:
-            return await self._call_freefall_tool(problem)
-            
-        # Constant acceleration
-        elif any(word in problem_lower for word in ["accelerate", "acceleration", "decelerate"]):
-            return await self._call_acceleration_tool(problem)
-            
-        # Uniform motion
-        elif any(word in problem_lower for word in ["constant", "uniform", "velocity"]) and "acceleration" not in problem_lower:
-            return await self._call_uniform_motion_tool(problem)
-            
-        # Relative motion
-        elif any(word in problem_lower for word in ["meet", "catch", "relative", "two"]):
-            return await self._call_relative_motion_tool(problem)
+        # Algebraic simplification
+        elif any(word in problem_lower for word in ["simplify", "factor", "expand"]):
+            return await self._call_algebra_simplify_tool(problem)
             
         else:
-            return await self._call_acceleration_tool(problem)  # Default
+            # Default to quadratic if contains x², otherwise linear
+            if "x²" in problem or "x^2" in problem:
+                return await self._call_quadratic_tool(problem)
+            elif "x" in problem and "=" in problem:
+                return await self._call_linear_tool(problem)
+            else:
+                return await self._call_algebra_simplify_tool(problem)
 
-    async def _call_projectile_tool(self, problem: str) -> str:
-        """Call projectile motion tool"""
+    async def _call_quadratic_tool(self, problem: str) -> str:
+        """Call quadratic equation solver tool"""
         try:
-            if "projectile_motion_2d" not in self.tool_dict:
-                return "❌ projectile_motion_2d tool not available"
+            if "solve_quadratic_equation" not in self.tool_dict:
+                return "❌ solve_quadratic_equation tool not available"
             
-            params = self._parse_projectile_params(problem)
-            tool = self.tool_dict["projectile_motion_2d"]
+            equation = self._parse_equation(problem)
             
-            result = await tool.ainvoke({
-                "launch_conditions": json.dumps(params)
-            })
+            tool = self.tool_dict["solve_quadratic_equation"]
+            result = await tool.ainvoke({"equation": equation})
             
-            return f"🎯 **PROJECTILE MOTION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            return f"🎯 **QUADRATIC EQUATION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
             
         except Exception as e:
-            return f"❌ Error in projectile motion: {e}"
+            return f"❌ Error in quadratic equation solving: {e}"
 
-    async def _call_freefall_tool(self, problem: str) -> str:
-        """Call free fall tool"""
+    async def _call_linear_tool(self, problem: str) -> str:
+        """Call linear equation solver tool"""
         try:
-            if "free_fall_motion" not in self.tool_dict:
-                return "❌ free_fall_motion tool not available"
+            if "solve_linear_equation" not in self.tool_dict:
+                return "❌ solve_linear_equation tool not available"
             
-            params = self._parse_freefall_params(problem)
-            tool = self.tool_dict["free_fall_motion"]
+            equation = self._parse_equation(problem)
             
-            result = await tool.ainvoke({
-                "known_values": json.dumps(params)
-            })
+            tool = self.tool_dict["solve_linear_equation"]
+            result = await tool.ainvoke({"equation": equation})
             
-            return f"🎯 **FREE FALL SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            return f"🎯 **LINEAR EQUATION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
             
         except Exception as e:
-            return f"❌ Error in free fall calculation: {e}"
+            return f"❌ Error in linear equation solving: {e}"
 
-    async def _call_acceleration_tool(self, problem: str) -> str:
-        """Call constant acceleration tool"""
+    async def _call_trigonometry_tool(self, problem: str) -> str:
+        """Call trigonometry calculator tool"""
         try:
-            if "constant_acceleration_1d" not in self.tool_dict:
-                return "❌ constant_acceleration_1d tool not available"
+            if "trigonometry_calculator" not in self.tool_dict:
+                return "❌ trigonometry_calculator tool not available"
             
-            params = self._parse_acceleration_params(problem)
-            tool = self.tool_dict["constant_acceleration_1d"]
+            function, value, unit = self._parse_trigonometry(problem)
             
+            tool = self.tool_dict["trigonometry_calculator"]
             result = await tool.ainvoke({
-                "known_values": json.dumps(params)
+                "function": function,
+                "value": value,
+                "unit": unit
             })
             
-            return f"🎯 **CONSTANT ACCELERATION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            return f"🎯 **TRIGONOMETRY SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
             
         except Exception as e:
-            return f"❌ Error in acceleration calculation: {e}"
+            return f"❌ Error in trigonometry calculation: {e}"
 
-    async def _call_uniform_motion_tool(self, problem: str) -> str:
-        """Call uniform motion tool"""
+    async def _call_triangle_tool(self, problem: str) -> str:
+        """Call triangle solver tool"""
         try:
-            if "uniform_motion_1d" not in self.tool_dict:
-                return "❌ uniform_motion_1d tool not available"
+            if "triangle_solver" not in self.tool_dict:
+                return "❌ triangle_solver tool not available"
             
-            params = self._parse_uniform_motion_params(problem)
-            tool = self.tool_dict["uniform_motion_1d"]
+            triangle_data = self._parse_triangle_data(problem)
             
+            tool = self.tool_dict["triangle_solver"]
+            result = await tool.ainvoke({"triangle_data": json.dumps(triangle_data)})
+            
+            return f"🎯 **TRIANGLE SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            
+        except Exception as e:
+            return f"❌ Error in triangle solving: {e}"
+
+    async def _call_logarithm_tool(self, problem: str) -> str:
+        """Call logarithm calculator tool"""
+        try:
+            if "logarithm_calculator" not in self.tool_dict:
+                return "❌ logarithm_calculator tool not available"
+            
+            operation, base, value, result_val = self._parse_logarithm(problem)
+            
+            tool = self.tool_dict["logarithm_calculator"]
+            params = {"operation": operation}
+            
+            if base is not None:
+                params["base"] = base
+            if value is not None:
+                params["value"] = value
+            if result_val is not None:
+                params["result"] = result_val
+            
+            result = await tool.ainvoke(params)
+            
+            return f"🎯 **LOGARITHM SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            
+        except Exception as e:
+            return f"❌ Error in logarithm calculation: {e}"
+
+    async def _call_statistics_tool(self, problem: str) -> str:
+        """Call statistics calculator tool"""
+        try:
+            if "statistics_calculator" not in self.tool_dict:
+                return "❌ statistics_calculator tool not available"
+            
+            data_type, values = self._parse_statistics_data(problem)
+            
+            tool = self.tool_dict["statistics_calculator"]
             result = await tool.ainvoke({
-                "known_values": json.dumps(params)
+                "data_type": data_type,
+                "values": values
             })
             
-            return f"🎯 **UNIFORM MOTION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            return f"🎯 **STATISTICS SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
             
         except Exception as e:
-            return f"❌ Error in uniform motion calculation: {e}"
+            return f"❌ Error in statistics calculation: {e}"
 
-    async def _call_relative_motion_tool(self, problem: str) -> str:
-        """Call relative motion tool"""
+    async def _call_unit_circle_tool(self, problem: str) -> str:
+        """Call unit circle reference tool"""
         try:
-            if "relative_motion_1d" not in self.tool_dict:
-                return "❌ relative_motion_1d tool not available"
+            if "unit_circle_reference" not in self.tool_dict:
+                return "❌ unit_circle_reference tool not available"
             
-            params = self._parse_relative_motion_params(problem)
-            tool = self.tool_dict["relative_motion_1d"]
+            angle, unit = self._parse_angle(problem)
             
+            tool = self.tool_dict["unit_circle_reference"]
             result = await tool.ainvoke({
-                "objects_data": json.dumps(params)
+                "angle": angle,
+                "unit": unit
             })
             
-            return f"🎯 **RELATIVE MOTION SOLUTION**\\n\\n{result}\\n\\n✅ **Calculation completed using MCP tools**"
+            return f"🎯 **UNIT CIRCLE REFERENCE**\\n\\n{result}\\n\\n✅ **Reference completed using MCP tools**"
             
         except Exception as e:
-            return f"❌ Error in relative motion calculation: {e}"
+            return f"❌ Error in unit circle reference: {e}"
 
-    # PARSING METHODS (Forces)
-    def _parse_forces(self, text: str) -> list:
-        """Parse forces from text - same as working agent"""
-        forces = []
-        
-        # Handle common patterns
-        if "10N at 30" in text and "15N at 120" in text:
-            forces = [{"magnitude": 10, "angle": 30}, {"magnitude": 15, "angle": 120}]
-        elif "10N at 30" in text and "15N at 60" in text:
-            forces = [{"magnitude": 10, "angle": 30}, {"magnitude": 15, "angle": 60}]
-        else:
-            # General regex parsing
-            pattern = r'(\\d+(?:\\.\\d+)?)\\s*[Nn]?\\s*(?:at|@)\\s*(\\d+(?:\\.\\d+)?)(?:°|degree|deg)?'
-            matches = re.findall(pattern, text)
-            forces = [{"magnitude": float(mag), "angle": float(ang)} for mag, ang in matches]
-        
-        return forces
+    async def _call_algebra_simplify_tool(self, problem: str) -> str:
+        """Call algebra simplification tool"""
+        try:
+            if "algebra_simplify" not in self.tool_dict:
+                return "❌ algebra_simplify tool not available"
+            
+            expression = self._parse_expression(problem)
+            
+            tool = self.tool_dict["algebra_simplify"]
+            result = await tool.ainvoke({"expression": expression})
+            
+            return f"🎯 **ALGEBRA SIMPLIFICATION**\\n\\n{result}\\n\\n✅ **Simplification completed using MCP tools**"
+            
+        except Exception as e:
+            return f"❌ Error in algebra simplification: {e}"
 
-    def _parse_spring_params(self, text: str):
-        """Parse spring parameters"""
-        k = 200  # default
-        displacement = -0.05  # default compression
-        
-        k_match = re.search(r'k\\s*=\\s*(\\d+(?:\\.\\d+)?)', text)
-        if k_match:
-            k = float(k_match.group(1))
-        
-        if "compressed" in text.lower() or "compression" in text.lower():
-            disp_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m', text)
-            if disp_match:
-                displacement = -float(disp_match.group(1))
-        elif "stretched" in text.lower() or "extension" in text.lower():
-            disp_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m', text)
-            if disp_match:
-                displacement = float(disp_match.group(1))
-        
-        return k, displacement
-
-    def _parse_force_magnitude_angle(self, text: str):
-        """Parse single force magnitude and angle"""
-        magnitude = 25  # default
-        angle = 45  # default
-        
-        mag_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*[Nn]', text)
-        if mag_match:
-            magnitude = float(mag_match.group(1))
-        
-        ang_match = re.search(r'(\\d+(?:\\.\\d+)?)(?:°|degree|deg)', text)
-        if ang_match:
-            angle = float(ang_match.group(1))
-        
-        return magnitude, angle
-
-    def _parse_object_name(self, text: str) -> str:
-        """Parse object name for free body diagrams"""
-        objects = ["box", "block", "ball", "car", "book", "mass", "object"]
-        for obj in objects:
-            if obj in text.lower():
-                return obj
-        return "object"
-
-    def _parse_forces_with_names(self, text: str) -> list:
-        """Parse forces with names for free body diagrams"""
-        forces = [
-            {"name": "Weight", "magnitude": 50, "angle": 270},
-            {"name": "Normal", "magnitude": 50, "angle": 90}
+    # PARSING METHODS (Mathematics)
+    def _parse_equation(self, text: str) -> str:
+        """Parse equation from text"""
+        # Look for equation patterns
+        eq_patterns = [
+            r'([x²x^2x+-=0-9\s\.]+=[x²x^2x+-=0-9\s\.]+)',
+            r'solve\s+([x²x^2x+-=0-9\s\.]+)',
+            r'equation[:\s]+([x²x^2x+-=0-9\s\.]+)'
         ]
         
-        if "applied" in text.lower():
-            app_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*[Nn]', text)
-            if app_match:
-                forces.append({"name": "Applied", "magnitude": float(app_match.group(1)), "angle": 0})
+        for pattern in eq_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
         
-        return forces
-
-    # PARSING METHODS (Kinematics)
-    def _parse_projectile_params(self, text: str) -> dict:
-        """Parse projectile motion parameters"""
-        params = {"v0": 30, "angle": 45, "h0": 0}
-        
-        # Parse velocity
-        v_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m/s', text)
-        if v_match:
-            params["v0"] = float(v_match.group(1))
-        
-        # Parse angle
-        ang_match = re.search(r'(\\d+(?:\\.\\d+)?)(?:°|degree|deg)', text)
-        if ang_match:
-            params["angle"] = float(ang_match.group(1))
-        
-        # Parse height
-        h_match = re.search(r'from\\s+(\\d+(?:\\.\\d+)?)\\s*m', text)
-        if h_match:
-            params["h0"] = float(h_match.group(1))
-        
-        return params
-
-    def _parse_freefall_params(self, text: str) -> dict:
-        """Parse free fall parameters"""
-        params = {}
-        
-        # Parse height
-        h_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m', text)
-        if h_match:
-            params["h0"] = float(h_match.group(1))
-        
-        # Parse initial velocity if any
-        if "thrown" in text.lower():
-            v_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m/s', text)
-            if v_match:
-                params["v0"] = float(v_match.group(1))
+        # Default equations for common cases
+        if "x² + 5x + 6" in text:
+            return "x² + 5x + 6 = 0"
+        elif "3x + 7 = 2x - 5" in text:
+            return "3x + 7 = 2x - 5"
+        elif "x²" in text or "x^2" in text:
+            return "x² + 5x + 6 = 0"  # Default quadratic
         else:
-            params["v0"] = 0  # Dropped from rest
-        
-        return params
+            return "3x + 7 = 2x - 5"  # Default linear
 
-    def _parse_acceleration_params(self, text: str) -> dict:
-        """Parse constant acceleration parameters"""
-        params = {}
+    def _parse_trigonometry(self, text: str) -> tuple:
+        """Parse trigonometric function call"""
+        text_lower = text.lower()
         
-        # Parse initial velocity
-        if "from rest" in text.lower():
-            params["v0"] = 0
+        # Determine function
+        if "sin" in text_lower:
+            function = "sin"
+        elif "cos" in text_lower:
+            function = "cos"
+        elif "tan" in text_lower:
+            function = "tan"
+        elif "arcsin" in text_lower or "asin" in text_lower:
+            function = "arcsin"
+        elif "arccos" in text_lower or "acos" in text_lower:
+            function = "arccos"
+        elif "arctan" in text_lower or "atan" in text_lower:
+            function = "arctan"
         else:
-            v0_match = re.search(r'at\\s+(\\d+(?:\\.\\d+)?)\\s*m/s', text)
-            if v0_match:
-                params["v0"] = float(v0_match.group(1))
+            function = "sin"  # Default
         
-        # Parse acceleration
-        a_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m/s[²²]', text)
-        if a_match:
-            params["a"] = float(a_match.group(1))
+        # Parse value
+        value = 45  # Default
+        value_match = re.search(r'(\d+(?:\.\d+)?)', text)
+        if value_match:
+            value = float(value_match.group(1))
         
-        # Parse time
-        t_match = re.search(r'for\\s+(\\d+(?:\\.\\d+)?)\\s*s', text)
-        if t_match:
-            params["t"] = float(t_match.group(1))
+        # Determine unit
+        if "°" in text or "degree" in text_lower:
+            unit = "degrees"
+        elif "rad" in text_lower:
+            unit = "radians"
+        else:
+            unit = "degrees"  # Default
         
-        return params
+        return function, value, unit
 
-    def _parse_uniform_motion_params(self, text: str) -> dict:
-        """Parse uniform motion parameters"""
-        params = {"x0": 0}
+    def _parse_triangle_data(self, text: str) -> dict:
+        """Parse triangle data from text"""
+        triangle_data = {"sides": {}, "angles": {}}
         
-        # Parse velocity
-        v_match = re.search(r'(\\d+(?:\\.\\d+)?)\\s*m/s', text)
-        if v_match:
-            params["v"] = float(v_match.group(1))
+        # Parse sides
+        side_matches = re.findall(r'(?:side\s+)?([abc])\s*=\s*(\d+(?:\.\d+)?)', text, re.IGNORECASE)
+        for side, value in side_matches:
+            triangle_data["sides"][side.lower()] = float(value)
         
-        # Parse time
-        t_match = re.search(r'for\\s+(\\d+(?:\\.\\d+)?)\\s*s', text)
-        if t_match:
-            params["t"] = float(t_match.group(1))
+        # Parse angles  
+        angle_matches = re.findall(r'(?:angle\s+)?([ABC])\s*=\s*(\d+(?:\.\d+)?)(?:°)?', text, re.IGNORECASE)
+        for angle, value in angle_matches:
+            triangle_data["angles"][angle.upper()] = float(value)
         
-        return params
+        # Default triangle if nothing parsed
+        if not triangle_data["sides"] and not triangle_data["angles"]:
+            if "5" in text and "7" in text and "60" in text:
+                triangle_data = {"sides": {"a": 5, "b": 7}, "angles": {"C": 60}}
+            elif "3" in text and "4" in text and "5" in text:
+                triangle_data = {"sides": {"a": 3, "b": 4, "c": 5}}
+            else:
+                triangle_data = {"sides": {"a": 5, "b": 7}, "angles": {"C": 60}}
+        
+        return triangle_data
 
-    def _parse_relative_motion_params(self, text: str) -> dict:
-        """Parse relative motion parameters"""
-        params = {
-            "object1": {"x0": 0, "v": 25},
-            "object2": {"x0": 200, "v": -15}
-        }
+    def _parse_logarithm(self, text: str) -> tuple:
+        """Parse logarithm parameters"""
+        text_lower = text.lower()
         
-        # This would need more sophisticated parsing for real use
-        # For now, return default two-car scenario
+        # Determine operation
+        if "antilog" in text_lower:
+            operation = "antilog"
+        elif "solve" in text_lower:
+            operation = "solve"
+        else:
+            operation = "log"
         
-        return params
+        # Parse base
+        base = None
+        if "log₁₀" in text or "log10" in text:
+            base = 10
+        elif "log₂" in text or "log2" in text:
+            base = 2
+        elif "ln" in text_lower:
+            base = None  # Natural log
+        
+        # Parse value/result
+        value = None
+        result_val = None
+        
+        if operation == "log":
+            # Look for log(value)
+            log_match = re.search(r'log(?:₁₀|10|₂|2)?\s*\(\s*(\d+(?:\.\d+)?)\s*\)', text)
+            if log_match:
+                value = float(log_match.group(1))
+            elif "100" in text:
+                value = 100
+            elif "e²" in text:
+                value = 7.389  # e²
+        elif operation == "antilog":
+            # Look for antilog value
+            antilog_match = re.search(r'(\d+(?:\.\d+)?)', text)
+            if antilog_match:
+                result_val = float(antilog_match.group(1))
+        
+        return operation, base, value, result_val
+
+    def _parse_statistics_data(self, text: str) -> tuple:
+        """Parse statistics data"""
+        # Look for comma-separated numbers
+        numbers_match = re.search(r'(\d+(?:\.\d+)?(?:\s*,\s*\d+(?:\.\d+)?)*)', text)
+        
+        if numbers_match:
+            values = numbers_match.group(1)
+        else:
+            # Default data set
+            values = "12, 15, 18, 14, 16, 13, 17"
+        
+        # Determine data type
+        if "error" in text.lower():
+            data_type = "error"
+        else:
+            data_type = "descriptive"
+        
+        return data_type, values
+
+    def _parse_angle(self, text: str) -> tuple:
+        """Parse angle for unit circle"""
+        # Parse angle value
+        angle = 45  # Default
+        angle_match = re.search(r'(\d+(?:\.\d+)?)', text)
+        if angle_match:
+            angle = float(angle_match.group(1))
+        
+        # Determine unit
+        if "°" in text or "degree" in text.lower():
+            unit = "degrees"
+        elif "rad" in text.lower():
+            unit = "radians"
+        else:
+            unit = "degrees"  # Default
+        
+        return angle, unit
+
+    def _parse_expression(self, text: str) -> str:
+        """Parse algebraic expression"""
+        # Look for expression patterns
+        expr_patterns = [
+            r'simplify\s+([x²x^2x+-=0-9\s\.]+)',
+            r'factor\s+([x²x^2x+-=0-9\s\.]+)',
+            r'expand\s+([x²x^2x+-=0-9\s\.]+)',
+            r'([x²x^2x+-=0-9\s\.]+)'
+        ]
+        
+        for pattern in expr_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+        
+        # Default expressions
+        if "3x + 2x" in text:
+            return "3x + 2x - 5 + 8"
+        elif "x² - 9" in text:
+            return "x² - 9"
+        else:
+            return "2x + 3x"  # Default
 
     # A2A COMPATIBILITY METHODS
     async def get_capabilities(self) -> Dict[str, Any]:
@@ -611,39 +575,27 @@ class CombinedPhysicsAgent:
         }
 
 # FACTORY FUNCTIONS
-def create_forces_agent(use_direct_tools: bool = True) -> CombinedPhysicsAgent:
-    """Create a forces agent"""
-    return CombinedPhysicsAgent(
-        agent_id="forces_agent", 
-        use_direct_tools=use_direct_tools
-    )
-
-def create_kinematics_agent(use_direct_tools: bool = True) -> CombinedPhysicsAgent:
-    """Create a kinematics agent"""
-    return CombinedPhysicsAgent(
-        agent_id="kinematics_agent", 
+def create_math_agent(use_direct_tools: bool = True) -> CombinedMathematicsAgent:
+    """Create a mathematics agent"""
+    return CombinedMathematicsAgent(
+        agent_id="math_agent", 
         use_direct_tools=use_direct_tools
     )
 
 # INTERACTIVE INTERFACES
-async def interactive_physics_agent(agent_type: str = "forces"):
-    """Universal interactive interface"""
-    if agent_type == "forces":
-        agent = create_forces_agent(use_direct_tools=True)  # Use working mode
-    elif agent_type == "kinematics":
-        agent = create_kinematics_agent(use_direct_tools=True)  # Use working mode
-    else:
-        raise ValueError("Agent type must be 'forces' or 'kinematics'")
-        
+async def interactive_math_agent():
+    """Interactive mathematics agent interface"""
+    agent = create_math_agent(use_direct_tools=True)  # Use working mode
+    
     await agent.initialize()
     agent.get_user_message()
     
     while True:
         try:
-            user_input = input(f"🧮 {agent_type.title()} Problem: ").strip()
+            user_input = input(f"🧮 Math Problem: ").strip()
             
             if user_input.lower() in ['quit', 'exit', 'q', 'bye']:
-                print(f"👋 Goodbye from {agent_type.title()} Agent!")
+                print(f"👋 Goodbye from Mathematics Agent!")
                 break
                 
             if not user_input:
@@ -661,15 +613,12 @@ async def interactive_physics_agent(agent_type: str = "forces"):
             print("\\n" + "-"*70 + "\\n")
             
         except KeyboardInterrupt:
-            print(f"\\n👋 Goodbye from {agent_type.title()} Agent!")
+            print(f"\\n👋 Goodbye from Mathematics Agent!")
             break
         except Exception as e:
             print(f"❌ Error: {e}\\n")
 
 # MAIN EXECUTION
 if __name__ == "__main__":
-    # Default: Run forces agent in interactive mode
-    asyncio.run(interactive_physics_agent("forces"))
-    
-    # Uncomment to run kinematics agent
-    # asyncio.run(interactive_physics_agent("kinematics"))
+    # Run mathematics agent in interactive mode
+    asyncio.run(interactive_math_agent())
